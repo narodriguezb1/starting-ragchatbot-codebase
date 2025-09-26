@@ -122,10 +122,33 @@ function addMessage(content, type, sources = null, isWelcome = false) {
     let html = `<div class="message-content">${displayContent}</div>`;
     
     if (sources && sources.length > 0) {
+        console.log('Sources received:', sources); // Debug log
+
+        // Format sources with clickable links where available
+        const formattedSources = sources.map(source => {
+            console.log('Processing source:', source, 'Type:', typeof source); // Debug log
+
+            // Handle the new API format where source is an object with text and link properties
+            if (typeof source === 'object' && source !== null && 'text' in source) {
+                if (source.link) {
+                    // Create clickable link that opens in new tab
+                    return `<a href="${source.link}" target="_blank" rel="noopener noreferrer" class="source-link">${escapeHtml(source.text)}</a>`;
+                } else {
+                    // Plain text source
+                    return escapeHtml(source.text);
+                }
+            } else {
+                // Fallback for old string format or unexpected data
+                return escapeHtml(String(source));
+            }
+        });
+
         html += `
             <details class="sources-collapsible">
                 <summary class="sources-header">Sources</summary>
-                <div class="sources-content">${sources.join(', ')}</div>
+                <div class="sources-content">
+                    ${formattedSources.map(source => `<div class="source-item">${source}</div>`).join('')}
+                </div>
             </details>
         `;
     }

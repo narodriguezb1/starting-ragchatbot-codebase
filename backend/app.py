@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 import os
 
 from config import config
@@ -35,6 +35,11 @@ app.add_middleware(
 rag_system = RAGSystem(config)
 
 # Pydantic models for request/response
+class SourceItem(BaseModel):
+    """Model for individual source with optional link"""
+    text: str
+    link: Optional[str] = None
+
 class QueryRequest(BaseModel):
     """Request model for course queries"""
     query: str
@@ -43,7 +48,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     """Response model for course queries"""
     answer: str
-    sources: List[str]
+    sources: List[SourceItem]
     session_id: str
 
 class CourseStats(BaseModel):
@@ -64,10 +69,26 @@ async def query_documents(request: QueryRequest):
         
         # Process query using RAG system
         answer, sources = rag_system.query(request.query, session_id)
-        
+
+        # Convert sources to SourceItem objects
+        formatted_sources = []
+        for source in sources:
+            if isinstance(source, dict) and 'text' in source:
+                # New format with text and optional link
+                formatted_sources.append(SourceItem(
+                    text=source['text'],
+                    link=source.get('link')
+                ))
+            else:
+                # Fallback for old string format
+                formatted_sources.append(SourceItem(
+                    text=str(source),
+                    link=None
+                ))
+
         return QueryResponse(
             answer=answer,
-            sources=sources,
+            sources=formatted_sources,
             session_id=session_id
         )
     except Exception as e:

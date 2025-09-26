@@ -245,6 +245,41 @@ header h1 {
     color: var(--text-secondary);
 }
 
+/* Clickable Source Links */
+.source-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.source-link:hover {
+    color: var(--primary-hover);
+    border-bottom-color: var(--primary-hover);
+    cursor: pointer;
+}
+
+.source-link:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+/* Individual Source Items */
+.source-item {
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+    background-color: rgba(37, 99, 235, 0.1);
+    border-left: 3px solid var(--primary-color);
+    border-radius: 4px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+.source-item:last-child {
+    margin-bottom: 0;
+}
+
 /* Markdown formatting styles */
 .message-content h1,
 .message-content h2,
